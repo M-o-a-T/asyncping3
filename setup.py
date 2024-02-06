@@ -10,7 +10,7 @@ setuptools.setup(
     description='A pure python3 version of ICMP ping implementation using raw socket.',
     long_description=long_desc,
     long_description_content_type='text/markdown',
-    url='https://github.com/M-o-a-T/asyncping3',
+    url='https://github.com/M-o-a-T/ping3',
     author='Matthias Urlichs',
     author_email='matthias@urlichs.de',
     license='MIT',
