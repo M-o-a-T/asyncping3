@@ -3,16 +3,13 @@
 import os
 import socket
 import struct
-import select
 import time
 import platform
-import zlib
-import threading
 import logging
 import functools
 import errno
 import anyio
-import pkg_resources
+from importlib.metadata import version
 
 from . import errors
 from .enums import ICMP_DEFAULT_CODE, IcmpType, IcmpTimeExceededCode, IcmpDestinationUnreachableCode
@@ -41,7 +38,7 @@ def _debug(*args) -> None:
         cout_handler.setLevel(logging.DEBUG)
         cout_handler.setFormatter(formatter)
         logger.addHandler(cout_handler)
-        v,_ = pkg_resources.get_distribution("asyncping3").version
+        v,_ = version("asyncping3")
         logger.debug("AsyncPing Version: {}".format(v))
         logger.debug("LOGGER: {}".format(logger))
         return logger
@@ -329,7 +326,6 @@ async def ping(dest_addr: str, timeout: int = 4, unit: str = "s", src_addr: str 
         if src_addr:
             sock.bind((src_addr, 0))  # only packets send to src_addr are received.
             _debug("Socket Source Address Binded:", src_addr)
-        thread_id = threading.get_native_id() if hasattr(threading, 'get_native_id') else threading.currentThread().ident  # threading.get_native_id() is supported >= python3.8.
         process_id = os.getpid()  # If ping() run under different process, thread_id may be identical.
         icmp_id = (((process_id << 5) | _seq_id) ^ (process_id >> 11)) & 0xffff  # to avoid icmp_id collision.
         _seq_id += 1

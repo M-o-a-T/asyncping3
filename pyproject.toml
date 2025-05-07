@@ -18,7 +18,10 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 ]
-dependencies = []
+dependencies = [
+    "anyio>=4.9.0",
+    "trio>=0.30.0",
+]
 dynamic = ["version"]
 
 [[project.authors]]
