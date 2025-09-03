@@ -26,10 +26,18 @@ def main(assigned_args = None) -> None:
     parser.add_argument("-s", "--size", dest="size", metavar="SIZE", type=int, default=56, help="The ICMP packet payload size in bytes. Default is 56.")
     parser.add_argument("-D", "--debug", action="store_true", dest="debug", help="Turn on DEBUG mode.")
     parser.add_argument("-E", "--exceptions", action="store_true", dest="exceptions", help="Turn on EXCEPTIONS mode.")
+    parser.add_argument("-4", "--ipv4", action="store_true", dest="ipv4", help="Force ping an IPv4 address. Default is None for auto-detect.")
+    parser.add_argument("-6", "--ipv6", action="store_true", dest="ipv6", help="Force ping an IPv6 address. Default is None for auto-detect.")
     args = parser.parse_args(assigned_args)
     asyncping3.DEBUG = args.debug
     asyncping3.EXCEPTIONS = args.exceptions
-    proc = functools.partial(asyncping3.verbose_ping, count=args.count, ttl=args.ttl, timeout=args.timeout, size=args.size, interval=args.interval, interface=args.interface, src_addr=args.src_addr)
+    if args.ipv4:
+        args.version = 4
+    elif args.ipv6:
+        args.version = 6
+    else:
+        args.version = None
+    proc = functools.partial(asyncping3.verbose_ping, count=args.count, ttl=args.ttl, timeout=args.timeout, size=args.size, interval=args.interval, interface=args.interface, src_addr=args.src_addr, version=args.version)
 
     async def _main():
         async with anyio.create_task_group() as tg:

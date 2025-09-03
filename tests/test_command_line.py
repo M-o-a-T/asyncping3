@@ -10,8 +10,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from asyncping3 import command_line  # noqa: linter (pycodestyle) should not lint this line.
 from asyncping3 import errors  # noqa: linter (pycodestyle) should not lint this line.
 import asyncping3 as ping3
+from util import ungroup
 
-DEST_DOMAIN = "example.com"
+DEST_DOMAIN = "captive.apple.com"
+UNREACHABLE_IP = "10.255.255.1"
 
 class TestCmdLine:
     """command-line ping3 unittest"""
@@ -39,21 +41,19 @@ class TestCmdLine:
 
     def test_timeout(self):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
-            command_line.main(["-t", "0.0001", DEST_DOMAIN])
-            self.assertRegex(fake_out.getvalue(), r".*Timeout \> [0-9\.]+s.*")
+            command_line.main(["-t", "1", UNREACHABLE_IP])
+            self.assertRegex(fake_out.getvalue(), r".*Timeout \> [1.0]+s.*")
 
-    @unittest.skipIf(sys.platform.startswith("win"), "Linux and macOS Only")
     def test_ttl(self):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             command_line.main(["-T", "1", DEST_DOMAIN])
-            print(fake_out.getvalue(), file=sys.stderr)
-            self.assertRegex(fake_out.getvalue(), r".*Error.*")
+            self.assertNotRegex(fake_out.getvalue(), r".*[0-9]+ms.*")
 
     def test_size(self):
         with patch("sys.stdout", new=io.StringIO()) as fake_out:
             command_line.main(["-s", "100", DEST_DOMAIN])
             self.assertRegex(fake_out.getvalue(), r".*[0-9]+ms.*")
-            with self.assertRaises(OSError):
+            with self.assertRaises(OSError), ungroup:
                 command_line.main(["-s", "99999", DEST_DOMAIN])
 
     def test_interval(self):
@@ -90,13 +90,23 @@ class TestCmdLine:
             command_line.main(["-S", my_ip, dest_addr])
             self.assertRegex(fake_out.getvalue(), r".*[0-9]+ms.*")
 
+    def test_ipv4(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            command_line.main(["-4", DEST_DOMAIN])
+            self.assertRegex(fake_out.getvalue(), r".*[0-9]+ms.*")
+
+    def test_ipv6(self):
+        with patch("sys.stdout", new=io.StringIO()) as fake_out:
+            command_line.main(["-6", DEST_DOMAIN])
+            self.assertRegex(fake_out.getvalue(), r".*[0-9]+ms.*")
+
     def test_debug(self):
         with patch("sys.stdout", new=io.StringIO()), patch("sys.stderr", new=io.StringIO()) as fake_err:
             command_line.main(["--debug", "-c", "1", DEST_DOMAIN])
             self.assertIn("[DEBUG]", fake_err.getvalue())
 
     def test_exceptions(self):
-        with self.assertRaises(errors.Timeout):
+        with self.assertRaises(errors.Timeout), ungroup:
             command_line.main(["--exceptions", "-t", "0.0001", DEST_DOMAIN])
 
 

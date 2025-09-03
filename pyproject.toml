@@ -8,13 +8,12 @@ description = "An async-friendly pure python3 version of ICMP ping implementatio
 requires-python = ">=3.9"
 readme = "README.md"
 keywords = ["python3", "anyio", "ping", "icmp", "socket", "tool"]
-license = {file = "LICENSE"}
+license = "MIT"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: End Users/Desktop",
     "Topic :: System :: Networking",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
 ]
